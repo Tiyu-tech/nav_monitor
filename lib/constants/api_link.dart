@@ -4,5 +4,5 @@ abstract class ApiDetails {
 
 class MyApiDetails extends ApiDetails {
   @override
-  String get apiLink => "http://192.168.61.238:3000";
+  String get apiLink => "http://192.168.1.94:3000";
 }

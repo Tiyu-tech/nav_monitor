@@ -175,7 +175,7 @@ class ProjectTile extends StatelessWidget {
           onPressed: () {},
           icon: const Icon(Icons.navigate_next),
         ),
-        tileColor: Colors.blue.shade50,
+        tileColor: const Color.fromARGB(255, 94, 181, 243),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),

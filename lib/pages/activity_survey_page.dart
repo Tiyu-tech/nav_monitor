@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_survey/flutter_survey.dart';
 import 'package:nav_monitor/constants/fonts.dart';
 import 'package:nav_monitor/services/sqlite_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 class SurveyPage extends StatefulWidget {
   final String activityId;
@@ -88,19 +90,56 @@ class _SurveyPageState extends State<SurveyPage> {
             question: text,
             singleChoice: true,
             isMandatory: true,
-            answerChoices: {'Yes': null, 'No': null});
+            answerChoices: {
+              'Yes': null,
+              'No': null
+            },
+            properties: {
+              "question_id": q['question_id'],
+            });
       }
       if (type == "date") {
         return Question(
           question: text,
           isMandatory: true,
-          properties: {'input_type': 'date'}, // 👈 mark this as date
+          properties: {
+            'input_type': 'date',
+            'question_id': q['question_id']
+          }, // 👈 mark this as date
         );
       }
 
       return Question(
-        question: text,
-      );
+          question: text,
+          isMandatory: true,
+          properties: {'question_id': q['question_id']});
     }).toList();
+  }
+
+  void _handleSurveySubmit(List<Map<String, dynamic>> responses) async {
+    final prefs = await SharedPreferences.getInstance();
+    final String orgId = prefs.getString("org_id") ?? "unknown";
+    final String activityId = widget.activityId;
+    final String transDate = DateTime.now().toIso8601String();
+    final uuid = Uuid().v4();
+
+    final answers = responses.map((response) {
+      return {
+        'answer_id': "${response['question_id']}_$uuid",
+        'answer': response['value'] ?? '',
+        'org_id': orgId,
+        'trans_date': transDate,
+        'question_id': response['question_id'],
+        'activity_id': activityId,
+      };
+    }).toList();
+
+    await DatabaseService().insertAnswer(answers);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Answers saved locally")),
+    );
+
+    Navigator.of(context).pop(); // Go back to Activities page
   }
 }

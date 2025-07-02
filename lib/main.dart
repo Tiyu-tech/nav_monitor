@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
             seedColor: const Color.fromARGB(255, 58, 102, 183)),
         useMaterial3: true,
       ),
-      home: CheckIfUserIsLoggedIn(),
+      home: LoginPage(),
       routes: {
         "/home": (context) => HomePage(),
       },
